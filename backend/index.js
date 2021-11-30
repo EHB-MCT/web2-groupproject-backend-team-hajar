@@ -47,12 +47,47 @@ app.get('/challenges', async (req,res) => {
 })
 
 //Save challenges from db
-app.post('/challenges', async (req,res) => {
+app.post('/saveChallenges', async (req,res) => {
+  if(!req.body.name || !req.body.points || !req.body.course || !req.body.session)
+  {
+    res.status(400).send('Bad request: missing id, name, points, course, session ')
+    return;
+  }
+
+  try {
+    //connect db
+    await client.connect();
+
+    //retrieve challenge data
+    const coll = client.db('S7:Team-Hajar').collection('challenges');
+    
+    // create new challenge object
+    let newChallenge = {
+        "name": req.body.name,
+        "points": req.body.points,
+        "course": req.body.course,
+        "session": req.body.session,
+    }
+
+    //insert into db
+    let insertResult = await coll.insertOne(newChallenge)
+
+    //succes message
+    res.status(201).send(`Challenge succesfully saved with challenge name: ${req.body.name}`)
+    return;
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("An error has occured")
+  } finally {
+    await client.close()
+  }
   
 })
 
 //Put challenges from db
-app.put('/challenges', async (req,res) => {
+app.put('/saveChallenge', async (req,res) => {
+ 
   
 })
 
