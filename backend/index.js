@@ -86,14 +86,36 @@ app.post('/saveChallenges', async (req,res) => {
 })
 
 //Put challenges from db
-app.put('/saveChallenge', async (req,res) => {
+app.put('/updateChallenge', async (req,res) => {
  
   
 })
 
 //Delete challenges from db
-app.delete('/challenges', async (req,res) => {
-  
+app.delete('/deleteChallenges', async (req,res) => {
+  try {
+     //connect db
+     await client.connect();
+
+
+    //retrieve challenge data
+    const coll = client.db('S7:Team-Hajar').collection('challenges');
+
+    coll.deleteOne({
+      "_id": ObjectId(req.body._id) 
+    })
+
+    //succes message
+    res.status(200).send({
+      message: 'Deleted!'
+    })
+
+    
+  } catch (error) {
+    res.status(400).send({
+      error: error
+    });
+  }
 })
 
 
