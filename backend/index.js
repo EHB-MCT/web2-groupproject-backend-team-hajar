@@ -28,10 +28,10 @@ app.get('/challenges', async (req,res) => {
   try {
     //connect db
     await client.connect();
-    
+
     //retrieve challeng data
-    const challenges = client.db('S7:Team-Hajar').collection('challenges')
-    .find({}).toArray();
+    const coll = client.db('S7:Team-Hajar').collection('challenges')
+    const challenges = await coll.find({}).toArray();
 
     //send back the file
     res.status(200).send(challenges)
@@ -46,7 +46,7 @@ app.get('/challenges', async (req,res) => {
   
 })
 
-//Posts challenges from db
+//Save challenges from db
 app.post('/challenges', async (req,res) => {
   
 })
