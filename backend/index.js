@@ -21,9 +21,10 @@ app.get('/', (req,res) => {
   res.send("Alles goed");
 })
 
-
+//app routes
+app
 //GET all challenges from db
-app.get('/challenges', async (req,res) => {
+.get('/challenges', async (req,res) => {
 
   try {
     //connect db
@@ -47,7 +48,7 @@ app.get('/challenges', async (req,res) => {
 })
 
 //GET all challenges:ID from db
-app.get('/challenges/:id', async (req,res) => {
+.get('/challenges/:id', async (req,res) => {
   //id is located in the query: req.params.id
 
   try {
@@ -82,7 +83,7 @@ app.get('/challenges/:id', async (req,res) => {
 })
 
 //POST challenges from db
-app.post('/saveChallenges', async (req,res) => {
+.post('/saveChallenges', async (req,res) => {
   if(!req.body.name || !req.body.points || !req.body.course || !req.body.session)
   {
     res.status(400).send('Bad request: missing id, name, points, course, session ')
@@ -121,12 +122,36 @@ app.post('/saveChallenges', async (req,res) => {
 })
 
 //Put challenges from db
-app.put('/updateChallenge/:id', async (req,res) => {
+.put('/updateChallenge/:id', async (req,res) => {
+  try {
+    //connect db
+    await client.connect();
 
+    //retrieve challenge data
+    const coll = client.db('S7:Team-Hajar').collection('challenges')
+    
+    //only look for a challenge with id
+    const query = {_id: ObjectId(req.params.id)};
+
+    coll.findOneAndUpdate({query}, req.body).then(function(coll) {
+      res.send(coll)
+    })
+
+    //send back the file
+    res.status(200).send("succesfully updated")
+    
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      error: "something went wrong",
+      value: error
+    })
+  }
+  
 })
 
 //Delete challenges from db
-app.delete('/deleteChallenges/:id', async (req,res) => {
+.delete('/deleteChallenges/:id', async (req,res) => {
   //id is located in the query: req.params.id
   try {
     //connect db
