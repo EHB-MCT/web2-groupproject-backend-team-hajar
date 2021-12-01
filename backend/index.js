@@ -121,35 +121,36 @@ app.post('/saveChallenges', async (req,res) => {
 })
 
 //Put challenges from db
-app.put('/updateChallenge', async (req,res) => {
- 
-  
+app.put('/updateChallenge/:id', async (req,res) => {
+
 })
 
 //Delete challenges from db
-app.delete('/deleteChallenges', async (req,res) => {
+app.delete('/deleteChallenges/:id', async (req,res) => {
+  //id is located in the query: req.params.id
   try {
-     //connect db
-     await client.connect();
-
+    //connect db
+    await client.connect();
 
     //retrieve challenge data
-    const coll = client.db('S7:Team-Hajar').collection('challenges');
+    const coll = client.db('S7:Team-Hajar').collection('challenges')
+    // const challenges = await coll.find({}).toArray();
 
-    coll.deleteOne({
-      "_id": ObjectId(req.body._id) 
-    })
-
-    //succes message
-    res.status(200).send({
-      message: 'Deleted!'
-    })
+    //only look for a challenge with id
+    const query = {_id: ObjectId(req.params.id)};
+    //DELETE challenge
+    await coll.deleteOne(query)
+    res.status(200).json({
+      message: 'Succesfully Deleted!'
+    });
 
     
   } catch (error) {
-    res.status(400).send({
-      error: error
-    });
+    console.log(error);
+    res.status(500).send({
+      error: "something went wrong",
+      value: error
+    })
   }
 })
 
