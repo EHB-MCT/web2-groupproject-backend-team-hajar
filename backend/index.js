@@ -108,7 +108,7 @@ app.post('/saveChallenges', async (req,res) => {
     let insertResult = await coll.insertOne(newChallenge)
 
     //succes message
-    res.status(201).send(`Challenge succesfully saved with challenge name: ${req.body.name}`)
+    res.status(201).json(newChallenge)
     return;
     
   } catch (error) {
