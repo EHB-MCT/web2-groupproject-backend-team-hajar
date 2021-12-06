@@ -15,8 +15,6 @@ const config = require('./config.json')
 //new mongo client
 const client = new MongoClient(config.baseUrl);
 
-
-
 //Root route
 app.get('/', (req,res) => {
   res.sendFile(__dirname + '/public/info.html');
@@ -83,7 +81,7 @@ app
   
 })
 
-//POST challenges from db
+//POST challenges to db
 .post('/saveChallenges', async (req,res) => {
   if(!req.body.name || !req.body.points || !req.body.course || !req.body.session)
   {
@@ -122,7 +120,7 @@ app
   
 })
 
-//Put challenges from db
+//PUT challenges from db
 .put('/updateChallenges/:id', async (req,res) => {
   try {
     //connect db
@@ -156,7 +154,7 @@ app
   
 })
 
-//Delete challenges from db
+//DELETE challenges from db
 .delete('/deleteChallenges/:id', async (req,res) => {
   //id is located in the query: req.params.id
   try {
@@ -185,8 +183,6 @@ app
     })
   }
 })
-
-
 
 app.listen(port, () => {
   console.log(`REST API is running at http://localhost:${port}`);
