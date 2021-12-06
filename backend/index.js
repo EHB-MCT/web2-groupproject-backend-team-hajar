@@ -122,31 +122,43 @@ app
 })
 
 //Put challenges from db
-.put('/updateChallenge/:id', async (req,res) => {
+.put('/updateChallenges/:id', async (req,res) => {
   try {
     //connect db
     await client.connect();
 
     //retrieve challenge data
     const coll = client.db('S7:Team-Hajar').collection('challenges')
-    
+
     //only look for a challenge with id
     const query = {_id: ObjectId(req.params.id)};
 
-    coll.findOneAndUpdate({query}, req.body).then(function(coll) {
-      res.send(coll)
+    const updateDocument = {
+      $set: {
+          name: req.body.name,
+      }
+  };
+
+    await coll.updateOne(query,updateDocument, (err) => {
+
+      if (err) {
+        res.status(400).send(`Error updating likes on listing with id ${listingQuery.id}!`);
+        
+      } else {
+        console.log("1 document updated");
+      }
     })
 
-    //send back the file
-    res.status(200).send("succesfully updated")
+    res.send(coll);
     
   } catch (error) {
     console.log(error);
     res.status(500).send({
       error: "something went wrong",
       value: error
-    })
+    })    
   }
+
   
 })
 
@@ -163,6 +175,7 @@ app
 
     //only look for a challenge with id
     const query = {_id: ObjectId(req.params.id)};
+
     //DELETE challenge
     await coll.deleteOne(query)
     res.status(200).json({
@@ -182,5 +195,5 @@ app
 
 
 app.listen(port, () => {
-  console.log(`API is running at http://localhost:${port}`);
+  console.log(`REST API is running at http://localhost:${port}`);
 })
