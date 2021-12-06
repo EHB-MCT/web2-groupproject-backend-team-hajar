@@ -136,9 +136,6 @@ app
     const updateDocument = {
       $set: {
           name: req.body.name,
-          // points: req.body.points,
-          // course: req.body.course,
-          // session: req.body.session,
       }
   };
 
