@@ -127,7 +127,7 @@ app
     //connect db
     await client.connect();
 
-    //retrieve challenge data
+    //retrieve challenge data from db
     const coll = client.db('S7:Team-Hajar').collection('challenges')
 
     //only look for a challenge with id
@@ -138,7 +138,7 @@ app
           name: req.body.name,
       }
   };
-
+    // updates document based on query
     await coll.updateOne(query,updateDocument) 
     res.status(200).json({
       message: 'Succesfully Updated Challenge: ' + req.body.name
