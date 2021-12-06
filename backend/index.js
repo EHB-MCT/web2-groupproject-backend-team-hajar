@@ -16,9 +16,10 @@ const config = require('./config.json')
 const client = new MongoClient(config.baseUrl);
 
 
+
 //Root route
 app.get('/', (req,res) => {
-  res.send("Alles goed");
+  res.sendFile(__dirname + '/public/info.html');
 })
 
 //app routes
