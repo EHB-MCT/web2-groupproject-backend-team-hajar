@@ -136,20 +136,16 @@ app
     const updateDocument = {
       $set: {
           name: req.body.name,
+          // points: req.body.points,
+          // course: req.body.course,
+          // session: req.body.session,
       }
   };
 
-    await coll.updateOne(query,updateDocument, (err) => {
-
-      if (err) {
-        res.status(400).send(`Error updating likes on listing with id ${listingQuery.id}!`);
-        
-      } else {
-        console.log("1 document updated");
-      }
-    })
-
-    res.send(coll);
+    await coll.updateOne(query,updateDocument) 
+    res.status(200).json({
+      message: 'Succesfully Updated Challenge: ' + req.body.name
+    });
     
   } catch (error) {
     console.log(error);
