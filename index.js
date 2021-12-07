@@ -92,11 +92,26 @@ app
 
   //POST challenges to db
   .post('/saveChallenges', async (req, res) => {
+    if (!req.body.name ) {
+      res.status(400).send('Bad request: missing name')
+      return;
+    }
+    if (!req.body.points ) {
+      res.status(400).send('Bad request: missing points')
+      return;
+    }
+    if (!req.body.course ) {
+      res.status(400).send('Bad request: missing course')
+      return;
+    }
+    if (!req.body.session ) {
+      res.status(400).send('Bad request: missing session')
+      return;
+    }
     if (!req.body.name || !req.body.points || !req.body.course || !req.body.session) {
       res.status(400).send('Bad request: missing id, name, points, course, session ')
       return;
     }
-
     try {
       //connect db
       await client.connect();
