@@ -9,181 +9,191 @@ const port = process.env.PORT || 3000;
 //middleware
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
+const cors = require('cors');
+app.use(cors);
 
 //mongo config
-const {MongoClient, ObjectId} = require('mongodb');
+const {
+  MongoClient,
+  ObjectId
+} = require('mongodb');
 const config = require('./config.json')
 //new mongo client
 const client = new MongoClient(config.baseUrl);
 
 //Root route
-app.get('/', (req,res) => {
+app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/info.html');
 })
 
 //app routes
 app
-//GET all challenges from db
-.get('/challenges', async (req,res) => {
+  //GET all challenges from db
+  .get('/challenges', async (req, res) => {
 
-  try {
-    //connect db
-    await client.connect();
+    try {
+      //connect db
+      await client.connect();
 
-    //retrieve challeng data
-    const coll = client.db('S7:Team-Hajar').collection('challenges')
-    const challenges = await coll.find({}).toArray();
+      //retrieve challeng data
+      const coll = client.db('S7:Team-Hajar').collection('challenges')
+      const challenges = await coll.find({}).toArray();
 
-    //send back the file
-    res.status(200).send(challenges)
-    
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      error: "something went wrong",
-      value: error
-    })
-  }
-  
-})
-
-//GET all challenges:ID from db
-.get('/challenges/:id', async (req,res) => {
-  //id is located in the query: req.params.id
-
-  try {
-    //connect db
-    await client.connect();
-
-    //retrieve challeng data
-    const coll = client.db('S7:Team-Hajar').collection('challenges')
-    // const challenges = await coll.find({}).toArray();
-
-    //only look for a challenge with id
-    const query = {_id: ObjectId(req.params.id)};
-
-    const challenge = await coll.findOne(query)
-
-    if(challenge){
       //send back the file
-      res.status(200).send(challenge);
-      return;
-    } else {
-      res.status(400).send("Challenge could not be found with id " + req.params.id)
+      res.status(200).send(challenges)
+
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        error: "something went wrong",
+        value: error
+      })
     }
-    
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      error: "something went wrong",
-      value: error
-    })
-  }
-  
-})
 
-//POST challenges to db
-.post('/saveChallenges', async (req,res) => {
-  if(!req.body.name || !req.body.points || !req.body.course || !req.body.session)
-  {
-    res.status(400).send('Bad request: missing id, name, points, course, session ')
-    return;
-  }
+  })
 
-  try {
-    //connect db
-    await client.connect();
+  //GET all challenges:ID from db
+  .get('/challenges/:id', async (req, res) => {
+    //id is located in the query: req.params.id
 
-    //retrieve challenge data
-    const coll = client.db('S7:Team-Hajar').collection('challenges');
-    
-    // create new challenge object
-    let newChallenge = {
+    try {
+      //connect db
+      await client.connect();
+
+      //retrieve challeng data
+      const coll = client.db('S7:Team-Hajar').collection('challenges')
+      // const challenges = await coll.find({}).toArray();
+
+      //only look for a challenge with id
+      const query = {
+        _id: ObjectId(req.params.id)
+      };
+
+      const challenge = await coll.findOne(query)
+
+      if (challenge) {
+        //send back the file
+        res.status(200).send(challenge);
+        return;
+      } else {
+        res.status(400).send("Challenge could not be found with id " + req.params.id)
+      }
+
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        error: "something went wrong",
+        value: error
+      })
+    }
+
+  })
+
+  //POST challenges to db
+  .post('/saveChallenges', async (req, res) => {
+    if (!req.body.name || !req.body.points || !req.body.course || !req.body.session) {
+      res.status(400).send('Bad request: missing id, name, points, course, session ')
+      return;
+    }
+
+    try {
+      //connect db
+      await client.connect();
+
+      //retrieve challenge data
+      const coll = client.db('S7:Team-Hajar').collection('challenges');
+
+      // create new challenge object
+      let newChallenge = {
         "name": req.body.name,
         "points": req.body.points,
         "course": req.body.course,
         "session": req.body.session,
+      }
+
+      //insert into db
+      let insertResult = await coll.insertOne(newChallenge)
+
+      //succes message
+      res.status(201).json(newChallenge)
+      return;
+
+    } catch (error) {
+      console.log(error);
+      res.status(500).send("An error has occured")
+    } finally {
+      await client.close()
     }
 
-    //insert into db
-    let insertResult = await coll.insertOne(newChallenge)
+  })
 
-    //succes message
-    res.status(201).json(newChallenge)
-    return;
-    
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("An error has occured")
-  } finally {
-    await client.close()
-  }
-  
-})
+  //PUT challenges from db
+  .put('/updateChallenges/:id', async (req, res) => {
+    try {
+      //connect db
+      await client.connect();
 
-//PUT challenges from db
-.put('/updateChallenges/:id', async (req,res) => {
-  try {
-    //connect db
-    await client.connect();
+      //retrieve challenge data from db
+      const coll = client.db('S7:Team-Hajar').collection('challenges')
 
-    //retrieve challenge data from db
-    const coll = client.db('S7:Team-Hajar').collection('challenges')
+      //only look for a challenge with id
+      const query = {
+        _id: ObjectId(req.params.id)
+      };
 
-    //only look for a challenge with id
-    const query = {_id: ObjectId(req.params.id)};
-
-    const updateDocument = {
-      $set: {
+      const updateDocument = {
+        $set: {
           name: req.body.name,
-      }
-  };
-    // updates document based on query
-    await coll.updateOne(query,updateDocument) 
-    res.status(200).json({
-      message: 'Succesfully Updated Challenge: ' + req.body.name
-    });
-    
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      error: "something went wrong",
-      value: error
-    })    
-  }
+        }
+      };
+      // updates document based on query
+      await coll.updateOne(query, updateDocument)
+      res.status(200).json({
+        message: 'Succesfully Updated Challenge: ' + req.body.name
+      });
 
-  
-})
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        error: "something went wrong",
+        value: error
+      })
+    }
 
-//DELETE challenges from db
-.delete('/deleteChallenges/:id', async (req,res) => {
-  //id is located in the query: req.params.id
-  try {
-    //connect db
-    await client.connect();
 
-    //retrieve challenge data
-    const coll = client.db('S7:Team-Hajar').collection('challenges')
-    // const challenges = await coll.find({}).toArray();
+  })
 
-    //only look for a challenge with id
-    const query = {_id: ObjectId(req.params.id)};
+  //DELETE challenges from db
+  .delete('/deleteChallenges/:id', async (req, res) => {
+    //id is located in the query: req.params.id
+    try {
+      //connect db
+      await client.connect();
 
-    //DELETE challenge
-    await coll.deleteOne(query)
-    res.status(200).json({
-      message: 'Succesfully Deleted!'
-    });
+      //retrieve challenge data
+      const coll = client.db('S7:Team-Hajar').collection('challenges')
+      // const challenges = await coll.find({}).toArray();
 
-    
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      error: "something went wrong",
-      value: error
-    })
-  }
-})
+      //only look for a challenge with id
+      const query = {
+        _id: ObjectId(req.params.id)
+      };
+
+      //DELETE challenge
+      await coll.deleteOne(query)
+      res.status(200).json({
+        message: 'Succesfully Deleted!'
+      });
+
+
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({
+        error: "something went wrong",
+        value: error
+      })
+    }
+  })
 
 app.listen(port, () => {
   console.log(`REST API is running at http://localhost:${port}`);
