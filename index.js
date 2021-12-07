@@ -1,9 +1,9 @@
-
+const fs = require('fs/promises')
 
 //express
 const express = require('express')();
 const app = express;
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 
 //middleware
@@ -20,7 +20,7 @@ const {
 } = require('mongodb');
 const config = require('./config.json')
 //new mongo client
-const client = new MongoClient(process.env.URL);
+const client = new MongoClient(config.baseUrl);
 
 //Root route
 app.get('/', (req, res) => {
