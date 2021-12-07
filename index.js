@@ -11,6 +11,9 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 const cors = require('cors');
 app.use(cors);
+const timeout = require('connect-timeout')
+app.use(timeout('20s'))
+
 
 //mongo config
 const {
